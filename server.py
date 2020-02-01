@@ -25,6 +25,7 @@ import subprocess
  *
 """
 
+# Dynamic variables
 actual_connections = {}
 
 class Network:
@@ -64,11 +65,16 @@ class Network:
     def getClientUsername(self, connection, address):
         self.client_id = self.client_id + 1
 
-        data = connection.recv(16) 
+        data = connection.recv(1024) 
         name = pickle.loads(data)
         name = str(name)
         server.addInformation('[CLIENT] Client ' + name)
         actual_connections[self.client_id] = {'name':name}
+
+        print('sending')
+        data_for_client_id = pickle.dumps(self.client_id)
+        connection.send(data_for_client_id)
+        print('sent id' + str(data_for_client_id))
 
     def getClientData(self, connection, address, client_id):
         while True:

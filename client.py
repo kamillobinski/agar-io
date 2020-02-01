@@ -25,6 +25,22 @@ import random, os, pygame, contextlib
  *
 """
 
+pygame.init()
+
+# Constant variables
+FPS_NUMBER = 30 
+START_PLAYER_VELOCITY = 10
+START_PLAYER_RADIUS = 5
+
+WIDTH = 600
+HEIGHT = 480
+
+START_PLAYER_POSITION_X = 10
+START_PLAYER_POSITION_Y = 10
+
+# Dynamic variables
+players = {}
+
 class Network:
 
     def __init__(self):
@@ -38,6 +54,10 @@ class Network:
 
     def sendPlayerUsername(self, username):
         self.client.send(pickle.dumps(username))
+        
+        data_received_from_server = self.client.recv(1024)
+        data_received_from_server_decoded = pickle.loads(data_received_from_server)
+        return int(data_received_from_server_decoded)
 
     def sendDataToServer(self, data):
         try:
@@ -60,23 +80,13 @@ class Client(QMainWindow):
 
     def __init__(self, parent=None):
         super(Client, self).__init__(parent)
-        # Client UI
-        self.initUI()
-        self.refresh()
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0,30)
 
-        # Client networking
+        # setup pygame window
+        WIN = pygame.display.set_mode((WIDTH,HEIGHT))
+        pygame.display.set_caption("Blobs")
+
         self.game()
-
-    def initUI(self):
-        vbox = QVBoxLayout()
-
-        window = QWidget()
-        window.setLayout(vbox)
-        self.setCentralWidget(window)
-
-        self.setGeometry(2720, 400, 300, 300)
-        self.setWindowTitle('Game client')
-        self.show()
 
     def game(self):
         global players
@@ -84,22 +94,54 @@ class Client(QMainWindow):
         self.server = Network()
         self.server.establishConnection()
 
-        username = input("Please enter your name: ")
-        threading.Thread(target=self.server.sendPlayerUsername(username)).start()
+        #username = input("Please enter your name: ")
+        username = 'kamillobinski'
+        player_id = self.server.sendPlayerUsername(username)
+        print('player_id = ' + str(player_id))
 
-        data = input("Please enter data to send: ")
-        threading.Thread(target=self.server.sendDataToServer(data)).start()
-        threading.Thread(target=self.server.receiveDataFromServer).start()
+        players[0] = {'id':player_id, 'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y}
+
+        threading.Thread(target=self.handleUserInputs(player_id)).start()
+
+        #data = input("Please enter data to send: ")
+        #data = 'testing'
+        #threading.Thread(target=self.server.sendDataToServer(data)).start()
+        #threading.Thread(target=self.server.receiveDataFromServer).start()
+
+    def handleUserInputs(self, player_id):
+        clock = pygame.time.Clock()
+
+        run = True
+        while True:
+            clock.tick(FPS_NUMBER)
+
+            player = players[0]
+            #print("gracz" + str(players[0]['id']))
+            velocity = START_PLAYER_VELOCITY
+            pygame.event.pump()
+            keys = pygame.key.get_pressed()
+
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                player['x'] = player['x'] + velocity
+                print(str(player['x']) + ' ' + str(player['y']))
+
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                player["x"] = player["x"] + velocity
+                print(str(player['x']) + ' ' + str(player['y']))
+
+            if keys[pygame.K_UP] or keys[pygame.K_w]:
+                player["y"] = player["y"] - velocity
+                print(str(player['x']) + ' ' + str(player['y']))
+
+            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                player["y"] = player["y"] + velocity
+                print(str(player['x']) + ' ' + str(player['y']))
+
+        self.server.disconnectFromServer()
+        pygame.quit()
+        quit()
 
         
-    def closeEvent(self, event):
-        self.server.disconnectFromServer()
-        print('zamykam')
-
-
-
-    def refresh(self):
-        self.update()
 
 if __name__ == '__main__':
    app = QApplication([])
