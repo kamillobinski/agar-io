@@ -63,7 +63,6 @@ class Network:
                 threading.Thread(target=self.getClientData(conn, address, self.client_id)).start()
             
             except Exception as ex:
-                #server.textArea.insertPlainText('[ERROR] Server caught error.')
                 print(ex)
                 pass
 
@@ -78,10 +77,8 @@ class Network:
         actual_connections[self.client_id] = {'name':name}
         players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y}
 
-        print('sending')
         data_for_client_id = pickle.dumps(self.client_id)
         connection.send(data_for_client_id)
-        print('sent id' + str(data_for_client_id))
 
     def getClientData(self, connection, address, client_id):
         while True:
@@ -107,16 +104,11 @@ class Network:
 
                         data = pickle.dumps(players)
                         connection.send(data)
-
-                    #data_reveived = pickle.loads(data)
-                    #server.addInformation('[CLIENT] Client ' + actual_connections[client_id]['name'] + ' sent: ' + str(data_reveived))
-
-                    #data_for_client = pickle.dumps(actual_connections[client_id]['name'])
-                    #connection.send(data_for_client) 
             
             except Exception as ex:
                 print(ex)
                 break
+
 
 
 class Server(QMainWindow):
@@ -172,11 +164,7 @@ class Server(QMainWindow):
         text_lines = self.textArea.blockCount()
         if text_lines > 100:
             self.textArea.clear()
-            print('Wipe text')
-
-    #def moveTextAreaCursorToEnd(self):
-        #self.textArea.verticalScrollBar().setValue(self.textArea.verticalScrollBar().maximum())
-
+            
     def refresh(self):
         self.update()
 

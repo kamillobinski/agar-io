@@ -25,8 +25,6 @@ import random, os, pygame, contextlib
  *
 """
 
-pygame.init()
-
 # Constant variables
 FPS_NUMBER = 30 
 START_PLAYER_VELOCITY = 10
@@ -40,6 +38,8 @@ START_PLAYER_POSITION_Y = 10
 
 # Dynamic variables
 players = {}
+
+pygame.init()
 
 class Network:
 
@@ -95,7 +95,6 @@ class Client(QMainWindow):
 
         username = 'kamillobinski'
         player_id = self.server.sendPlayerUsername(username)
-        print('player_id = ' + str(player_id))
 
         threading.Thread(target=self.handleUserInputs(player_id)).start()
 
@@ -159,9 +158,6 @@ class Client(QMainWindow):
         for player in players:
             p = players[player]
             pygame.draw.circle(self.WIN, (255, 128, 0), (p['x'], p['y']), START_PLAYER_RADIUS)
-
-
-        
 
 if __name__ == '__main__':
    app = QApplication([])
