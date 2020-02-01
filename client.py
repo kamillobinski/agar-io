@@ -25,19 +25,25 @@ import random, os, pygame, contextlib
  *
 """
 
+pygame.font.init()
+
 # Constant variables
-FPS_NUMBER = 30 
-START_PLAYER_VELOCITY = 10
+FPS_NUMBER = 60
+START_PLAYER_VELOCITY = 5
 START_PLAYER_RADIUS = 5
+PLAYER_COLORS = [(255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
 
 WIDTH = 600
 HEIGHT = 480
+
+FONT = pygame.font.SysFont('Comic Sans MS', 12)
 
 START_PLAYER_POSITION_X = 10
 START_PLAYER_POSITION_Y = 10
 
 # Dynamic variables
 players = {}
+bullets = {}
 
 pygame.init()
 
@@ -82,18 +88,18 @@ class Client(QMainWindow):
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (500, 300)
 
         # setup pygame window
-        self.WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.window = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Agar.io")
 
         self.game()
 
     def game(self):
-        global players
+        global players, bullets
 
         self.server = Network()
         self.server.establishConnection()
 
-        username = 'kamillobinski'
+        username = input('Write your username: ')
         player_id = self.server.sendPlayerUsername(username)
 
         threading.Thread(target=self.handleUserInputs(player_id)).start()
@@ -153,11 +159,13 @@ class Client(QMainWindow):
         quit()
 
     def drawGameComponents(self, players):
-        self.WIN.fill((255, 255, 255))
+        self.window.fill((255, 255, 255))
 
         for player in players:
             p = players[player]
-            pygame.draw.circle(self.WIN, (255, 128, 0), (p['x'], p['y']), START_PLAYER_RADIUS)
+            pygame.draw.circle(self.window, p['color'], (p['x'], p['y']), START_PLAYER_RADIUS)
+            name = FONT.render(p['name'], 1, (0, 0, 0))
+            self.window.blit(name, (p['x'] - name.get_width()/2, p["y"] - name.get_height()/2 - 15))
 
 if __name__ == '__main__':
    app = QApplication([])

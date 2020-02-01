@@ -28,6 +28,7 @@ import subprocess
 # Constant variables
 START_PLAYER_POSITION_X = 10
 START_PLAYER_POSITION_Y = 10
+PLAYER_COLORS = [(255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
 
 # Dynamic variables
 actual_connections = {}
@@ -75,7 +76,8 @@ class Network:
         server.addInformation('[CLIENT] Client ' + name)
 
         actual_connections[self.client_id] = {'name':name}
-        players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y}
+        color = PLAYER_COLORS[self.client_id]
+        players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y, 'color':color, 'name':name}
 
         data_for_client_id = pickle.dumps(self.client_id)
         connection.send(data_for_client_id)
@@ -92,10 +94,10 @@ class Network:
                 if data == b'':
                     pass
                 else:       
-                    data_reveived = pickle.loads(data)
+                    data_received = pickle.loads(data)
 
-                    if data_reveived.split(' ')[0] == 'Position':
-                        split_data = data_reveived.split(' ')
+                    if data_received.split(' ')[0] == 'Position':
+                        split_data = data_received.split(' ')
                         x = int(split_data[1])
                         y = int(split_data[2])
 
@@ -164,7 +166,7 @@ class Server(QMainWindow):
         text_lines = self.textArea.blockCount()
         if text_lines > 100:
             self.textArea.clear()
-            
+
     def refresh(self):
         self.update()
 
