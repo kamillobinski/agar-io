@@ -25,8 +25,13 @@ import subprocess
  *
 """
 
+# Constant variables
+START_PLAYER_POSITION_X = 10
+START_PLAYER_POSITION_Y = 10
+
 # Dynamic variables
 actual_connections = {}
+players = {}
 
 class Network:
 
@@ -36,7 +41,7 @@ class Network:
         self.port = 55550
         self.addr = (self.host, self.port)
 
-        global actual_connections
+        global actual_connections, players
         self.client_id = 0
 
     def runServer(self):
@@ -69,7 +74,9 @@ class Network:
         name = pickle.loads(data)
         name = str(name)
         server.addInformation('[CLIENT] Client ' + name)
+
         actual_connections[self.client_id] = {'name':name}
+        players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y}
 
         print('sending')
         data_for_client_id = pickle.dumps(self.client_id)
@@ -78,21 +85,38 @@ class Network:
 
     def getClientData(self, connection, address, client_id):
         while True:
-            data = connection.recv(2048)
-            if not data:
-                del actual_connections[client_id]
-                server.addInformation('[CONNECTION] Client ' + name + ' disconnected from server')
-                connection.close()
+            try: 
+                data = connection.recv(2048 * 4)
+                if not data:
+                    del actual_connections[client_id]
+                    del players[client_id]
+                    server.addInformation('[CONNECTION] Client ' + name + ' disconnected from server')
+                    break
+                if data == b'':
+                    pass
+                else:       
+                    data_reveived = pickle.loads(data)
+
+                    if data_reveived.split(' ')[0] == 'Position':
+                        split_data = data_reveived.split(' ')
+                        x = int(split_data[1])
+                        y = int(split_data[2])
+
+                        players[client_id]['x'] = x
+                        players[client_id]['y'] = y
+
+                        data = pickle.dumps(players)
+                        connection.send(data)
+
+                    #data_reveived = pickle.loads(data)
+                    #server.addInformation('[CLIENT] Client ' + actual_connections[client_id]['name'] + ' sent: ' + str(data_reveived))
+
+                    #data_for_client = pickle.dumps(actual_connections[client_id]['name'])
+                    #connection.send(data_for_client) 
+            
+            except Exception as ex:
+                print(ex)
                 break
-            if data == b'':
-                pass
-            else:       
-                data_reveived = pickle.loads(data)
-                server.addInformation('[CLIENT] Client ' + actual_connections[client_id]['name'] + ' sent: ' + str(data_reveived))
-
-                data_for_client = pickle.dumps(actual_connections[client_id]['name'])
-                connection.send(data_for_client) 
-
 
 
 class Server(QMainWindow):
@@ -133,7 +157,8 @@ class Server(QMainWindow):
         self.serverPropertiesGroup.setLayout(serverPropertiesGroupLayout)
 
         self.textArea = QPlainTextEdit()
-        self.textArea.setReadOnly(True)                
+        self.textArea.setReadOnly(True)    
+        self.textArea.setWordWrapMode(QTextOption.NoWrap)            
 
     def fillServerProperties(self):
         self.serverIP.setText('IP: ' + self.network.host)
@@ -141,6 +166,13 @@ class Server(QMainWindow):
 
     def addInformation(self, info):
         self.textArea.insertPlainText(info + '\n')
+        self.checkToClean()
+
+    def checkToClean(self):
+        text_lines = self.textArea.blockCount()
+        if text_lines > 100:
+            self.textArea.clear()
+            print('Wipe text')
 
     #def moveTextAreaCursorToEnd(self):
         #self.textArea.verticalScrollBar().setValue(self.textArea.verticalScrollBar().maximum())

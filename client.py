@@ -66,10 +66,9 @@ class Network:
             print(e)
 
     def receiveDataFromServer(self):
-        while True:
-            data_received_from_server = self.client.recv(1024)
-            data_from_server_decoded = pickle.loads(data_received_from_server)
-            print(str(data_from_server_decoded))
+        data_received_from_server = self.client.recv(2048*4)
+        data_from_server_decoded = pickle.loads(data_received_from_server)
+        return data_from_server_decoded
 
     def disconnectFromServer(self):
         self.client.close()
@@ -80,11 +79,11 @@ class Client(QMainWindow):
 
     def __init__(self, parent=None):
         super(Client, self).__init__(parent)
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0,30)
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (500, 300)
 
         # setup pygame window
-        WIN = pygame.display.set_mode((WIDTH,HEIGHT))
-        pygame.display.set_caption("Blobs")
+        self.WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption("Agar.io")
 
         self.game()
 
@@ -94,52 +93,73 @@ class Client(QMainWindow):
         self.server = Network()
         self.server.establishConnection()
 
-        #username = input("Please enter your name: ")
         username = 'kamillobinski'
         player_id = self.server.sendPlayerUsername(username)
         print('player_id = ' + str(player_id))
 
-        players[0] = {'id':player_id, 'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y}
-
         threading.Thread(target=self.handleUserInputs(player_id)).start()
-
-        #data = input("Please enter data to send: ")
-        #data = 'testing'
-        #threading.Thread(target=self.server.sendDataToServer(data)).start()
-        #threading.Thread(target=self.server.receiveDataFromServer).start()
 
     def handleUserInputs(self, player_id):
         clock = pygame.time.Clock()
 
-        run = True
-        while True:
-            clock.tick(FPS_NUMBER)
+        data = 'Position ' + '10' + ' ' + '10'
+        self.server.sendDataToServer(data)
+        players = self.server.receiveDataFromServer()
 
-            player = players[0]
-            #print("gracz" + str(players[0]['id']))
+        run = True
+        while run:
+            clock.tick(FPS_NUMBER)
+            
+            player = players[player_id]
             velocity = START_PLAYER_VELOCITY
+            radius = START_PLAYER_RADIUS
             pygame.event.pump()
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-                player['x'] = player['x'] + velocity
-                print(str(player['x']) + ' ' + str(player['y']))
+                if player["x"] - velocity - radius >= 0:
+                    player['x'] = player['x'] - velocity
 
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-                player["x"] = player["x"] + velocity
-                print(str(player['x']) + ' ' + str(player['y']))
+                if player["x"] + velocity + radius <= WIDTH:
+                    player["x"] = player["x"] + velocity
 
             if keys[pygame.K_UP] or keys[pygame.K_w]:
-                player["y"] = player["y"] - velocity
-                print(str(player['x']) + ' ' + str(player['y']))
+                if player["y"] - velocity - radius >= 0:
+                    player["y"] = player["y"] - velocity
 
             if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-                player["y"] = player["y"] + velocity
-                print(str(player['x']) + ' ' + str(player['y']))
+                if player["y"] + velocity + radius <= HEIGHT:
+                    player["y"] = player["y"] + velocity
+
+            data = 'Position ' + str(player['x']) + ' ' + str(player['y'])
+
+            threading.Thread(target=self.server.sendDataToServer(data)).start()
+            players = self.server.receiveDataFromServer()
+            
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        run = False  
+
+            self.drawGameComponents(players)
+            pygame.display.update()
 
         self.server.disconnectFromServer()
         pygame.quit()
         quit()
+
+    def drawGameComponents(self, players):
+        self.WIN.fill((255, 255, 255))
+
+        for player in players:
+            p = players[player]
+            pygame.draw.circle(self.WIN, (255, 128, 0), (p['x'], p['y']), START_PLAYER_RADIUS)
+
 
         
 
