@@ -45,6 +45,12 @@ class Network:
         except socket.error as e:
             print(e)
 
+    def receiveDataFromServer(self):
+        while True:
+            data_received_from_server = self.client.recv(1024)
+            data_from_server_decoded = pickle.loads(data_received_from_server)
+            print(str(data_from_server_decoded))
+
     def disconnectFromServer(self):
         self.client.close()
 
@@ -81,12 +87,10 @@ class Client(QMainWindow):
         username = input("Please enter your name: ")
         threading.Thread(target=self.server.sendPlayerUsername(username)).start()
 
-        self.send()
-
-    def send(self):
         data = input("Please enter data to send: ")
-        threading.Thread(target=self.server.sendPlayerUsername(data)).start()
-        self.send()
+        threading.Thread(target=self.server.sendDataToServer(data)).start()
+        threading.Thread(target=self.server.receiveDataFromServer).start()
+
         
     def closeEvent(self, event):
         self.server.disconnectFromServer()

@@ -54,10 +54,11 @@ class Network:
                 server.addInformation('[CONNECTION] Server established new connection')
                 threading.Thread(target=self.serverLoop).start()
                 threading.Thread(target=self.getClientUsername(conn, address)).start()
-                threading.Thread(target=self.handleClientMessages(conn, address, self.client_id)).start()
+                threading.Thread(target=self.getClientData(conn, address, self.client_id)).start()
             
             except Exception as ex:
                 #server.textArea.insertPlainText('[ERROR] Server caught error.')
+                print(ex)
                 pass
 
     def getClientUsername(self, connection, address):
@@ -69,21 +70,22 @@ class Network:
         server.addInformation('[CLIENT] Client ' + name)
         actual_connections[self.client_id] = {'name':name}
 
-
-    def handleClientMessages(self, connection, address, client_id):
-
+    def getClientData(self, connection, address, client_id):
         while True:
             data = connection.recv(2048)
             if not data:
+                del actual_connections[client_id]
                 server.addInformation('[CONNECTION] Client ' + name + ' disconnected from server')
+                connection.close()
                 break
             if data == b'':
                 pass
             else:       
                 data_reveived = pickle.loads(data)
-                server.addInformation('[CLIENT] Client ' + actual_connections[client_id]['name'] + ' sent: ' + str(data_reveived) )
+                server.addInformation('[CLIENT] Client ' + actual_connections[client_id]['name'] + ' sent: ' + str(data_reveived))
 
-        connection.close()
+                data_for_client = pickle.dumps(actual_connections[client_id]['name'])
+                connection.send(data_for_client) 
 
 
 
@@ -125,8 +127,7 @@ class Server(QMainWindow):
         self.serverPropertiesGroup.setLayout(serverPropertiesGroupLayout)
 
         self.textArea = QPlainTextEdit()
-        self.textArea.setReadOnly(True)
-                
+        self.textArea.setReadOnly(True)                
 
     def fillServerProperties(self):
         self.serverIP.setText('IP: ' + self.network.host)
@@ -134,6 +135,9 @@ class Server(QMainWindow):
 
     def addInformation(self, info):
         self.textArea.insertPlainText(info + '\n')
+
+    #def moveTextAreaCursorToEnd(self):
+        #self.textArea.verticalScrollBar().setValue(self.textArea.verticalScrollBar().maximum())
 
     def refresh(self):
         self.update()
