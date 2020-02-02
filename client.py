@@ -40,7 +40,7 @@ SCREEN_RESOLUTION = pygame.display.Info()
 
 # Game fonts
 pygame.font.init()
-FONT = pygame.font.SysFont('Comic Sans MS', 12)
+#FONT = pygame.font.SysFont('Comic Sans MS', 12)
 
 # Dynamic variables
 players = {}
@@ -120,7 +120,7 @@ class Client(QMainWindow):
             player = players[player_id]
 
             velocity = START_PLAYER_VELOCITY
-            radius = START_PLAYER_RADIUS
+            radius = START_PLAYER_RADIUS + player['radius']
             pygame.event.pump()
             keys = pygame.key.get_pressed()
 
@@ -144,9 +144,9 @@ class Client(QMainWindow):
             threading.Thread(target=self.server.sendDataToServer(data)).start()
             players = self.server.receiveDataFromServer()
             
-            #data = 'Food '
-            #threading.Thread(target=self.server.sendDataToServer(data)).start()
-            #players = self.server.receiveDataFromServer()
+            data = 'Food '
+            threading.Thread(target=self.server.sendDataToServer(data)).start()
+            food = self.server.receiveDataFromServer()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -156,7 +156,6 @@ class Client(QMainWindow):
                     if event.key == pygame.K_ESCAPE:
                         run = False  
 
-            print(str(food))
             self.drawGameComponents(players, food)
             pygame.display.update()
 
@@ -167,14 +166,17 @@ class Client(QMainWindow):
     def drawGameComponents(self, players, food):
         self.window.fill((255, 255, 255))
 
-        for snack in food:
-            pygame.draw.circle(self.window, (95, 10, 135), (snack[0], snack[1]), 3)
+        for i in range(len(food)):
+            snack = food[i]
+            pygame.draw.circle(self.window, (130, 130, 130), (snack[0], snack[1]), 3)
 
         for player in players:
             p = players[player]
-            pygame.draw.circle(self.window, p['color'], (p['x'], p['y']), START_PLAYER_RADIUS)
+            pygame.draw.circle(self.window, p['color'], (p['x'], p['y']), START_PLAYER_RADIUS + p['radius'])
+
+            FONT = pygame.font.SysFont('Comic Sans MS', 10)
             name = FONT.render(p['name'], 1, (0, 0, 0))
-            self.window.blit(name, (p['x'] - name.get_width()/2, p["y"] - name.get_height()/2 - 15))
+            self.window.blit(name, (p['x'] - name.get_width()/2, p["y"] - name.get_height()/2))
 
 if __name__ == '__main__':
    app = QApplication([])

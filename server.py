@@ -17,7 +17,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import sys, socket, pickle, threading
-import subprocess, random
+import subprocess, random, math
 
 """ 
  *
@@ -28,6 +28,7 @@ import subprocess, random
 # Constant variables
 START_PLAYER_POSITION_X = 10
 START_PLAYER_POSITION_Y = 10
+START_PLAYER_RADIUS = 5
 PLAYER_COLORS = [(255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35), (255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
 
 CLIENT_WINDOW_WIDTH = 600
@@ -81,7 +82,7 @@ class Network:
 
         actual_connections[self.client_id] = {'name':name}
         color = PLAYER_COLORS[self.client_id]
-        players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y, 'color':color, 'name':name}
+        players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y, 'color':color, 'name':name, 'radius':START_PLAYER_RADIUS}
 
         data_for_client_id = pickle.dumps(self.client_id)
         connection.send(data_for_client_id)
@@ -111,6 +112,12 @@ class Network:
                     elif data_received.split(' ')[0] == 'Generate':
                         self.generateFood(food, 20)
                         data = pickle.dumps(food)
+
+                    elif data_received.split(' ')[0] == 'Food':
+                        if len(food) < 5:
+                            self.generateFood(food, 10)
+                        self.checkForEatenFood(players, food)
+                        data = pickle.dumps(food)
                     
                     connection.send(data)
 
@@ -119,11 +126,27 @@ class Network:
                 break
 
     # Game functions
+    def checkForEatenFood(self, players, food):
+        for player in players:
+            p = players[player]
+            player_pos_x = p['x']
+            player_pos_y = p['y']
+            for snack in food:
+                food_pos_x = snack[0]
+                food_pos_y = snack[1]
+
+                calculated = math.sqrt((food_pos_x - player_pos_x)**2 + (food_pos_y - player_pos_y)**2)
+
+                if calculated <= 5 + p['radius']:
+                    food.remove(snack)
+                    p['radius'] = p['radius'] + 1
+
     def generateFood(self, food, number_to_generate):
         for n in range(number_to_generate):
-            x = random.randrange(0, CLIENT_WINDOW_HEIGHT)
-            y = random.randrange(0, CLIENT_WINDOW_WIDTH)
+            x = random.randrange(0, CLIENT_WINDOW_WIDTH)
+            y = random.randrange(0, CLIENT_WINDOW_HEIGHT)
             food.append((x, y))
+        server.addInformation('[GAME] Server generated more food')
 
 
 
