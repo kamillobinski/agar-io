@@ -78,11 +78,11 @@ class Network:
         data = connection.recv(1024) 
         name = pickle.loads(data)
         name = str(name)
-        server.addInformation('[CLIENT] Client ' + name)
+        server.addInformation('[CLIENT] Client ' + name + ' ready for game')
 
         actual_connections[self.client_id] = {'name':name}
         color = PLAYER_COLORS[self.client_id]
-        players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y, 'color':color, 'name':name, 'radius':START_PLAYER_RADIUS}
+        players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y, 'color':color, 'name':name, 'radius':0}
 
         data_for_client_id = pickle.dumps(self.client_id)
         connection.send(data_for_client_id)
@@ -108,6 +108,8 @@ class Network:
                         players[client_id]['x'] = x
                         players[client_id]['y'] = y
 
+                        self.checkForPlayerCollision(players)
+
                         data = pickle.dumps(players)
                     elif data_received.split(' ')[0] == 'Generate':
                         self.generateFood(food, 20)
@@ -118,7 +120,7 @@ class Network:
                             self.generateFood(food, 10)
                         self.checkForEatenFood(players, food)
                         data = pickle.dumps(food)
-                    
+
                     connection.send(data)
 
             except Exception as ex:
@@ -140,6 +142,21 @@ class Network:
                 if calculated <= 5 + p['radius']:
                     food.remove(snack)
                     p['radius'] = p['radius'] + 1
+
+    def checkForPlayerCollision(self, players):
+        p_sorted_list = sorted(players, key=lambda number: players[number]['radius'])
+        for number, playerFirst in enumerate(p_sorted_list):
+            for playerSecond in p_sorted_list[number + 1:]:
+                p1_pos_x = players[playerFirst]['x']
+                p1_pos_y = players[playerFirst]['y']
+                p2_pos_x = players[playerSecond]['x']
+                p2_pos_y = players[playerSecond]['y']
+
+                calculated = math.sqrt((p1_pos_x - p2_pos_x)**2 + (p1_pos_y - p2_pos_y)**2)
+
+                if calculated < players[playerSecond]['radius'] - players[playerFirst]['radius'] * 0.6:
+                    players[playerSecond]['radius'] = players[playerSecond]['radius'] + players[playerFirst]['radius']
+                    players[playerFirst]['radius'] = 0
 
     def generateFood(self, food, number_to_generate):
         for n in range(number_to_generate):
@@ -189,7 +206,7 @@ class Server(QMainWindow):
 
         self.textArea = QPlainTextEdit()
         self.textArea.setReadOnly(True)    
-        self.textArea.setWordWrapMode(QTextOption.NoWrap)            
+        self.textArea.setWordWrapMode(QTextOption.NoWrap)   
 
     def fillServerProperties(self):
         self.serverIP.setText('IP: ' + self.network.host)
@@ -197,7 +214,7 @@ class Server(QMainWindow):
 
     def addInformation(self, info):
         self.textArea.insertPlainText(info + '\n')
-        self.checkToClean()
+        #server.checkToClean()
 
     def checkToClean(self):
         text_lines = self.textArea.blockCount()
