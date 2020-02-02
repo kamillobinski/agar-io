@@ -25,27 +25,26 @@ import random, os, pygame, contextlib
  *
 """
 
-pygame.font.init()
+pygame.init()
 
 # Constant variables
 FPS_NUMBER = 60
 START_PLAYER_VELOCITY = 5
 START_PLAYER_RADIUS = 5
-PLAYER_COLORS = [(255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
-
-WIDTH = 600
-HEIGHT = 480
-
-FONT = pygame.font.SysFont('Comic Sans MS', 12)
-
 START_PLAYER_POSITION_X = 10
 START_PLAYER_POSITION_Y = 10
 
+WIDTH = 600
+HEIGHT = 480
+SCREEN_RESOLUTION = pygame.display.Info()
+
+# Game fonts
+pygame.font.init()
+FONT = pygame.font.SysFont('Comic Sans MS', 12)
+
 # Dynamic variables
 players = {}
-bullets = {}
-
-pygame.init()
+food = []
 
 class Network:
 
@@ -85,16 +84,15 @@ class Client(QMainWindow):
 
     def __init__(self, parent=None):
         super(Client, self).__init__(parent)
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (500, 300)
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % ((SCREEN_RESOLUTION.current_w / 2) - (WIDTH / 2), (SCREEN_RESOLUTION.current_h / 2) - (HEIGHT / 2))
 
-        # setup pygame window
         self.window = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Agar.io")
+        pygame.display.set_caption("Game client")
 
         self.game()
 
     def game(self):
-        global players, bullets
+        global players, food
 
         self.server = Network()
         self.server.establishConnection()
@@ -107,15 +105,20 @@ class Client(QMainWindow):
     def handleUserInputs(self, player_id):
         clock = pygame.time.Clock()
 
-        data = 'Position ' + '10' + ' ' + '10'
+        data = 'Position ' + str(START_PLAYER_POSITION_X) + ' ' + str(START_PLAYER_POSITION_Y)
         self.server.sendDataToServer(data)
         players = self.server.receiveDataFromServer()
+
+        data = 'Generate Food'
+        self.server.sendDataToServer(data)
+        food = self.server.receiveDataFromServer()
 
         run = True
         while run:
             clock.tick(FPS_NUMBER)
             
             player = players[player_id]
+
             velocity = START_PLAYER_VELOCITY
             radius = START_PLAYER_RADIUS
             pygame.event.pump()
@@ -138,10 +141,12 @@ class Client(QMainWindow):
                     player["y"] = player["y"] + velocity
 
             data = 'Position ' + str(player['x']) + ' ' + str(player['y'])
-
             threading.Thread(target=self.server.sendDataToServer(data)).start()
             players = self.server.receiveDataFromServer()
             
+            #data = 'Food '
+            #threading.Thread(target=self.server.sendDataToServer(data)).start()
+            #players = self.server.receiveDataFromServer()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -151,15 +156,19 @@ class Client(QMainWindow):
                     if event.key == pygame.K_ESCAPE:
                         run = False  
 
-            self.drawGameComponents(players)
+            print(str(food))
+            self.drawGameComponents(players, food)
             pygame.display.update()
 
         self.server.disconnectFromServer()
         pygame.quit()
-        quit()
+        quit()              
 
-    def drawGameComponents(self, players):
+    def drawGameComponents(self, players, food):
         self.window.fill((255, 255, 255))
+
+        for snack in food:
+            pygame.draw.circle(self.window, (95, 10, 135), (snack[0], snack[1]), 3)
 
         for player in players:
             p = players[player]

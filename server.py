@@ -17,7 +17,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import sys, socket, pickle, threading
-import subprocess
+import subprocess, random
 
 """ 
  *
@@ -28,11 +28,15 @@ import subprocess
 # Constant variables
 START_PLAYER_POSITION_X = 10
 START_PLAYER_POSITION_Y = 10
-PLAYER_COLORS = [(255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
+PLAYER_COLORS = [(255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35), (255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
+
+CLIENT_WINDOW_WIDTH = 600
+CLIENT_WINDOW_HEIGHT = 480
 
 # Dynamic variables
 actual_connections = {}
 players = {}
+food = []
 
 class Network:
 
@@ -42,7 +46,7 @@ class Network:
         self.port = 55550
         self.addr = (self.host, self.port)
 
-        global actual_connections, players
+        global actual_connections, players, food
         self.client_id = 0
 
     def runServer(self):
@@ -95,7 +99,6 @@ class Network:
                     pass
                 else:       
                     data_received = pickle.loads(data)
-
                     if data_received.split(' ')[0] == 'Position':
                         split_data = data_received.split(' ')
                         x = int(split_data[1])
@@ -105,11 +108,22 @@ class Network:
                         players[client_id]['y'] = y
 
                         data = pickle.dumps(players)
-                        connection.send(data)
-            
+                    elif data_received.split(' ')[0] == 'Generate':
+                        self.generateFood(food, 20)
+                        data = pickle.dumps(food)
+                    
+                    connection.send(data)
+
             except Exception as ex:
                 print(ex)
                 break
+
+    # Game functions
+    def generateFood(self, food, number_to_generate):
+        for n in range(number_to_generate):
+            x = random.randrange(0, CLIENT_WINDOW_HEIGHT)
+            y = random.randrange(0, CLIENT_WINDOW_WIDTH)
+            food.append((x, y))
 
 
 
