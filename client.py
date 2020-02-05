@@ -18,6 +18,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import sys, socket, pickle, threading
 import random, os, pygame, contextlib
+import emoji
 
 """ 
  *
@@ -40,7 +41,7 @@ SCREEN_RESOLUTION = pygame.display.Info()
 
 # Game fonts
 pygame.font.init()
-#FONT = pygame.font.SysFont('Comic Sans MS', 12)
+FONT = pygame.font.SysFont('Comic Sans MS', 10)
 
 # Dynamic variables
 players = {}
@@ -173,10 +174,19 @@ class Client(QMainWindow):
         for player in players:
             p = players[player]
             pygame.draw.circle(self.window, p['color'], (p['x'], p['y']), START_PLAYER_RADIUS + p['radius'])
-
-            FONT = pygame.font.SysFont('Comic Sans MS', 10)
+            
             name = FONT.render(p['name'], 1, (0, 0, 0))
             self.window.blit(name, (p['x'] - name.get_width()/2, p["y"] - name.get_height()/2))
+
+        leaderboard_title = FONT.render('Leaderboard', 1, (0,0,0))
+        self.window.blit(leaderboard_title, (WIDTH - 80, 5))
+
+        score_list = list(reversed(sorted(players, key = lambda x: players[x]['radius'])))
+
+        leng = min(len(players), 3)
+        for count, i in enumerate(score_list[:leng]):
+            text = FONT.render(str(count + 1) + '. ' + str(players[i]['name']) + ' ' + str(players[i]['radius']), 1, (255, 187, 0))
+            self.window.blit(text, (WIDTH - 80, 25 + count * 20))
 
 if __name__ == '__main__':
    app = QApplication([])
