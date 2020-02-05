@@ -13,10 +13,10 @@
 </p>
 
 <p align="center">
-  <a href="#key-features">Key Features</a> ï
-  <a href="#how-to-use">How To Use</a> ï
-  <a href="#download">Download</a> ï
-  <a href="#dependencies">Dependencies</a> ï
+  <a href="#key-features">Key Features</a> ‚Ä¢
+  <a href="#how-to-use">How To Use</a> ‚Ä¢
+  <a href="#download">Download</a> ‚Ä¢
+  <a href="#dependencies">Dependencies</a> ‚Ä¢
   <a href="#license">License</a>
 </p>
 
@@ -78,7 +78,7 @@ Apache 2.0
 
 ---
 
-> Gmail [Kamil £obiÒski](mailto:kamilobinski@gmail.com) &nbsp;&middot;&nbsp;
+> Gmail [Kamil ≈Åobi≈Ñski](mailto:kamilobinski@gmail.com) &nbsp;&middot;&nbsp;
 > GitHub [@kamillobinski](https://github.com/kamillobinski) &nbsp;&middot;&nbsp;
-> LinkedIn [Kamil £obiÒski](https://www.linkedin.com/in/kamillobinski/?locale=en_US)
+> LinkedIn [Kamil ≈Åobi≈Ñski](https://www.linkedin.com/in/kamillobinski/?locale=en_US)
 
