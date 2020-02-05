@@ -18,6 +18,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import sys, socket, pickle, threading
 import subprocess, random, math
+import os
 
 """ 
  *
@@ -35,7 +36,6 @@ CLIENT_WINDOW_WIDTH = 600
 CLIENT_WINDOW_HEIGHT = 480
 
 # Dynamic variables
-actual_connections = {}
 players = {}
 food = []
 
@@ -47,7 +47,7 @@ class Network:
         self.port = 55550
         self.addr = (self.host, self.port)
 
-        global actual_connections, players, food
+        global players, food
         self.client_id = 0
 
     def runServer(self):
@@ -80,7 +80,6 @@ class Network:
         name = str(name)
         server.addInformation('[CLIENT] Client ' + name + ' ready for game')
 
-        actual_connections[self.client_id] = {'name':name}
         color = PLAYER_COLORS[self.client_id]
         players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y, 'color':color, 'name':name, 'radius':0}
 
@@ -92,9 +91,9 @@ class Network:
             try: 
                 data = connection.recv(2048 * 4)
                 if not data:
-                    del actual_connections[client_id]
+                    server.addInformation('[CONNECTION] Client ' + players[client_id]['name'] + ' disconnected from server')
                     del players[client_id]
-                    server.addInformation('[CONNECTION] Client ' + name + ' disconnected from server')
+                    connection.close()
                     break
                 if data == b'':
                     pass
@@ -107,7 +106,7 @@ class Network:
 
                         players[client_id]['x'] = x
                         players[client_id]['y'] = y
-
+                        
                         self.checkForPlayerCollision(players)
 
                         data = pickle.dumps(players)
@@ -191,7 +190,8 @@ class Server(QMainWindow):
         self.setCentralWidget(window)
 
         self.setGeometry(2400, 400, 300, 300)
-        self.setWindowTitle('Game server')
+        self.setWindowTitle('Agar.io server')
+        self.setWindowIcon(QIcon('resources/favicon.png'))
 
     def createComponents(self):
         self.serverIP = QLabel('IP: ', self)
@@ -204,7 +204,7 @@ class Server(QMainWindow):
         self.serverPropertiesGroup = QGroupBox('Server properties')
         self.serverPropertiesGroup.setLayout(serverPropertiesGroupLayout)
 
-        self.textArea = QPlainTextEdit()
+        self.textArea = QTextEdit()
         self.textArea.setReadOnly(True)    
         self.textArea.setWordWrapMode(QTextOption.NoWrap)   
 
@@ -214,7 +214,7 @@ class Server(QMainWindow):
 
     def addInformation(self, info):
         self.textArea.insertPlainText(info + '\n')
-        #server.checkToClean()
+        self.textArea.moveCursor(QTextCursor.End)
 
     def checkToClean(self):
         text_lines = self.textArea.blockCount()

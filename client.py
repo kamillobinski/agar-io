@@ -43,6 +43,9 @@ SCREEN_RESOLUTION = pygame.display.Info()
 pygame.font.init()
 FONT = pygame.font.SysFont('Comic Sans MS', 10)
 
+# Game icon
+icon = pygame.image.load('resources/favicon.png')
+
 # Dynamic variables
 players = {}
 food = []
@@ -88,7 +91,8 @@ class Client(QMainWindow):
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % ((SCREEN_RESOLUTION.current_w / 2) - (WIDTH / 2), (SCREEN_RESOLUTION.current_h / 2) - (HEIGHT / 2))
 
         self.window = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Game client")
+        pygame.display.set_caption("Agar.io")
+        pygame.display.set_icon(icon)
 
         self.game()
 
@@ -174,7 +178,7 @@ class Client(QMainWindow):
         for player in players:
             p = players[player]
             pygame.draw.circle(self.window, p['color'], (p['x'], p['y']), START_PLAYER_RADIUS + p['radius'])
-            
+
             name = FONT.render(p['name'], 1, (0, 0, 0))
             self.window.blit(name, (p['x'] - name.get_width()/2, p["y"] - name.get_height()/2))
 
