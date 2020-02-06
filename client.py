@@ -123,27 +123,26 @@ class Client(QMainWindow):
             clock.tick(FPS_NUMBER)
             
             player = players[player_id]
-
-            velocity = START_PLAYER_VELOCITY
             radius = START_PLAYER_RADIUS + player['radius']
+
             pygame.event.pump()
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-                if player["x"] - velocity - radius >= 0:
-                    player['x'] = player['x'] - velocity
+                if player["x"] - player['velocity'] - radius >= 0:
+                    player['x'] = player['x'] - player['velocity']
 
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-                if player["x"] + velocity + radius <= WIDTH:
-                    player["x"] = player["x"] + velocity
+                if player["x"] + player['velocity'] + radius <= WIDTH:
+                    player["x"] = player["x"] + player['velocity']
 
             if keys[pygame.K_UP] or keys[pygame.K_w]:
-                if player["y"] - velocity - radius >= 0:
-                    player["y"] = player["y"] - velocity
+                if player["y"] - player['velocity'] - radius >= 0:
+                    player["y"] = player["y"] - player['velocity']
 
             if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-                if player["y"] + velocity + radius <= HEIGHT:
-                    player["y"] = player["y"] + velocity
+                if player["y"] + player['velocity'] + radius <= HEIGHT:
+                    player["y"] = player["y"] + player['velocity']
 
             data = 'Position ' + str(player['x']) + ' ' + str(player['y'])
             threading.Thread(target=self.server.sendDataToServer(data)).start()

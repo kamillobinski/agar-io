@@ -29,7 +29,8 @@ import os
 # Constant variables
 START_PLAYER_POSITION_X = 10
 START_PLAYER_POSITION_Y = 10
-START_PLAYER_RADIUS = 5
+START_PLAYER_RADIUS = 0
+START_PLAYER_VELOCITY = 5
 PLAYER_COLORS = [(255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35), (255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
 
 CLIENT_WINDOW_WIDTH = 600
@@ -81,7 +82,7 @@ class Network:
         server.addInformation('[CLIENT] Client ' + name + ' ready for game')
 
         color = PLAYER_COLORS[self.client_id]
-        players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y, 'color':color, 'name':name, 'radius':0}
+        players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y, 'color':color, 'name':name, 'radius':START_PLAYER_RADIUS, 'velocity':START_PLAYER_VELOCITY}
 
         data_for_client_id = pickle.dumps(self.client_id)
         connection.send(data_for_client_id)
@@ -106,7 +107,7 @@ class Network:
 
                         players[client_id]['x'] = x
                         players[client_id]['y'] = y
-                        
+
                         self.checkForPlayerCollision(players)
 
                         data = pickle.dumps(players)
@@ -127,6 +128,13 @@ class Network:
                 break
 
     # Game functions
+    def changePlayerVelocity(self, p):
+            if p['radius'] == 0:
+                p['velocity'] = START_PLAYER_VELOCITY
+            elif p['radius'] > 5 and p['radius'] % 5 == 0:
+                if p['velocity'] > 1:
+                    p['velocity'] = math.floor(p['velocity'] * 0.95)
+
     def checkForEatenFood(self, players, food):
         for player in players:
             p = players[player]
@@ -141,6 +149,7 @@ class Network:
                 if calculated <= 5 + p['radius']:
                     food.remove(snack)
                     p['radius'] = p['radius'] + 1
+                    self.changePlayerVelocity(p)
 
     def checkForPlayerCollision(self, players):
         p_sorted_list = sorted(players, key=lambda number: players[number]['radius'])
@@ -156,6 +165,8 @@ class Network:
                 if calculated < players[playerSecond]['radius'] - players[playerFirst]['radius'] * 0.6:
                     players[playerSecond]['radius'] = players[playerSecond]['radius'] + players[playerFirst]['radius']
                     players[playerFirst]['radius'] = 0
+                    self.changePlayerVelocity(players[playerFirst])
+                    self.changePlayerVelocity(players[playerSecond])
 
     def generateFood(self, food, number_to_generate):
         for n in range(number_to_generate):
