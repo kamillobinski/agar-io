@@ -18,7 +18,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import sys, socket, pickle, threading
 import random, os, pygame, contextlib
-import emoji
+from pygame.locals import *
 
 """ 
  *
@@ -39,12 +39,22 @@ WIDTH = 600
 HEIGHT = 480
 SCREEN_RESOLUTION = pygame.display.Info()
 
+GREEN = (84, 200, 0)
+GREY = (162, 162, 162)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
 # Game fonts
 pygame.font.init()
 FONT = pygame.font.SysFont('Comic Sans MS', 10)
+START_PAGE_FONT = pygame.font.SysFont('Comic Sans MS', 16)
+START_PAGE_FONT_LOGO = pygame.font.SysFont('Comic Sans MS', 40)
 
 # Game icon
 icon = pygame.image.load('resources/favicon.png')
+
+# Game image
+START_PAGE_IMAGE = pygame.image.load('resources/background.png')
 
 # Dynamic variables
 players = {}
@@ -102,10 +112,49 @@ class Client(QMainWindow):
         self.server = Network()
         self.server.establishConnection()
 
-        username = input('Write your username: ')
-        player_id = self.server.sendPlayerUsername(username)
+        self.username = ''
+        self.game_intro()
 
+        player_id = self.server.sendPlayerUsername(self.username)
         threading.Thread(target=self.handleUserInputs(player_id)).start()
+
+    def game_intro(self):
+        intro = True
+        while intro:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    if (x > 200 and x < 400 and y > 250 and y < 280):
+                        intro = False
+
+                elif event.type == KEYDOWN:
+                    if event.unicode.isalpha():
+                        if len(self.username) < 8:
+                            self.username += event.unicode
+                    elif event.key == K_BACKSPACE:
+                        self.username = self.username[:-1]
+                    elif event.key == K_RETURN:
+                        intro = False
+
+            logo_text = START_PAGE_FONT_LOGO.render('Agar.io', True, BLACK)
+            username_hint = START_PAGE_FONT.render('Username: ', True, GREY)
+            username_block = START_PAGE_FONT.render(self.username, True, BLACK)
+            rect = username_block.get_rect()
+            rect.center = self.window.get_rect().center
+            play_button_text = START_PAGE_FONT.render('Play', True, WHITE)
+
+            self.window.blit(START_PAGE_IMAGE, START_PAGE_IMAGE.get_rect())
+            self.window.blit(logo_text, [233, 145])
+            self.window.blit(username_block, [283,213])
+            self.window.blit(username_hint, [205,213])
+            pygame.draw.rect(self.window, GREY, (200, 210, 200, 30), 1)
+            pygame.draw.rect(self.window, GREEN, (200, 250, 200, 30))
+            self.window.blit(play_button_text, [283,252])  
+
+            pygame.display.update()
 
     def handleUserInputs(self, player_id):
         clock = pygame.time.Clock()
