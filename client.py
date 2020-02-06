@@ -221,7 +221,7 @@ class Client(QMainWindow):
 
         for i in range(len(food)):
             snack = food[i]
-            pygame.draw.circle(self.window, (130, 130, 130), (snack[0], snack[1]), 3)
+            pygame.draw.circle(self.window, snack[2], (snack[0], snack[1]), 3)
 
         for player in players:
             p = players[player]

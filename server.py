@@ -32,6 +32,7 @@ START_PLAYER_POSITION_Y = 10
 START_PLAYER_RADIUS = 0
 START_PLAYER_VELOCITY = 5
 PLAYER_COLORS = [(255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35), (255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
+FOOD_COLORS = [(0, 250, 255), (103, 255, 0), (255, 0, 169), (0, 255, 0), (0, 111, 255), (255, 70, 0), (255, 248, 0), (255, 0, 34), (184, 0, 255)]
 
 CLIENT_WINDOW_WIDTH = 600
 CLIENT_WINDOW_HEIGHT = 480
@@ -172,7 +173,8 @@ class Network:
         for n in range(number_to_generate):
             x = random.randrange(0, CLIENT_WINDOW_WIDTH)
             y = random.randrange(0, CLIENT_WINDOW_HEIGHT)
-            food.append((x, y))
+            color = random.choice(FOOD_COLORS)
+            food.append((x, y, color))
         server.addInformation('[GAME] Server generated more food')
 
 
