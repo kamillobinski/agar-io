@@ -1,4 +1,4 @@
-""" 
+﻿""" 
  * Copyright 2019 Kamil Łobiński <kamilobinski@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -117,7 +117,7 @@ class Network:
                         data = pickle.dumps(food)
 
                     elif data_received.split(' ')[0] == 'Food':
-                        if len(food) < 5:
+                        if len(food) < 10:
                             self.generateFood(food, 10)
                         self.checkForEatenFood(players, food)
                         data = pickle.dumps(food)
@@ -171,8 +171,8 @@ class Network:
 
     def generateFood(self, food, number_to_generate):
         for n in range(number_to_generate):
-            x = random.randrange(0, CLIENT_WINDOW_WIDTH)
-            y = random.randrange(0, CLIENT_WINDOW_HEIGHT)
+            x = random.randrange(10, CLIENT_WINDOW_WIDTH - 10)
+            y = random.randrange(10, CLIENT_WINDOW_HEIGHT - 10)
             color = random.choice(FOOD_COLORS)
             food.append((x, y, color))
         server.addInformation('[GAME] Server generated more food')
@@ -202,7 +202,7 @@ class Server(QMainWindow):
         window.setLayout(vbox)
         self.setCentralWidget(window)
 
-        self.setGeometry(2400, 400, 300, 300)
+        self.setGeometry(100, 400, 300, 300)
         self.setWindowTitle('Agar.io server')
         self.setWindowIcon(QIcon('resources/favicon.png'))
 
