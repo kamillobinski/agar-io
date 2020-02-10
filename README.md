@@ -6,7 +6,7 @@
 <h4 align="center">Popular game clone developed using pygame.</h4>
 
 <p align="center">
-<img alt="Project version" src="https://img.shields.io/badge/version-1.0.0-orange">
+<img alt="Project version" src="https://img.shields.io/badge/version-1.1.0-orange">
 <a href="https://github.com/kamillobinski/Agar.io/issues"> <img alt="GitHub issues" src="https://img.shields.io/github/issues/kamillobinski/Agar.io"></a>
 <a href="https://github.com/kamillobinski/Agar.io/stargazers"> <img alt="GitHub stars" src="https://img.shields.io/github/stars/kamillobinski/Agar.io"></a>
 <a href="https://github.com/kamillobinski/Agar.io/blob/master/LICENSE"> <img alt="GitHub license" src="https://img.shields.io/github/license/kamillobinski/Agar.io"></a>
