@@ -237,7 +237,7 @@ class Client(QMainWindow):
 
         leng = min(len(players), 3)
         for count, i in enumerate(score_list[:leng]):
-            text = FONT.render(str(count + 1) + '. ' + str(players[i]['name']) + ' ' + str(players[i]['radius']), 1, (255, 187, 0))
+            text = FONT.render(str(count + 1) + '. ' + str(players[i]['name']) + ' ' + str(players[i]['radius']), 1, players[i]['color'])
             self.window.blit(text, (WIDTH - 80, 25 + count * 20))
 
 if __name__ == '__main__':

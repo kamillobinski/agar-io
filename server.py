@@ -17,8 +17,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import sys, socket, pickle, threading
-import subprocess, random, math
-import os
+import subprocess, random, math, os
+from bot import *
 
 """ 
  *
@@ -31,7 +31,7 @@ START_PLAYER_POSITION_X = 10
 START_PLAYER_POSITION_Y = 10
 START_PLAYER_RADIUS = 0
 START_PLAYER_VELOCITY = 5
-PLAYER_COLORS = [(255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35), (255, 255, 255), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
+PLAYER_COLORS = [(95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35), (95, 10, 135), (177, 221, 241), (217, 4, 41), (159, 135, 175), (136, 82, 127), (97, 67, 68), (51, 44, 35)]
 FOOD_COLORS = [(0, 250, 255), (103, 255, 0), (255, 0, 169), (0, 255, 0), (0, 111, 255), (255, 70, 0), (255, 248, 0), (255, 0, 34), (184, 0, 255)]
 
 CLIENT_WINDOW_WIDTH = 600
@@ -82,7 +82,7 @@ class Network:
         name = str(name)
         server.addInformation('[CLIENT] Client ' + name + ' ready for game')
 
-        color = PLAYER_COLORS[self.client_id]
+        color = random.choice(PLAYER_COLORS)
         players[self.client_id] = {'x':START_PLAYER_POSITION_X, 'y':START_PLAYER_POSITION_Y, 'color':color, 'name':name, 'radius':START_PLAYER_RADIUS, 'velocity':START_PLAYER_VELOCITY}
 
         data_for_client_id = pickle.dumps(self.client_id)
@@ -177,6 +177,9 @@ class Network:
             food.append((x, y, color))
         server.addInformation('[GAME] Server generated more food')
 
+    def deleteBot(self, bot_id):
+        del players[bot_id]
+
 
 
 class Server(QMainWindow):
@@ -196,6 +199,7 @@ class Server(QMainWindow):
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.serverPropertiesGroup)
+        vbox.addWidget(self.botGroup)
         vbox.addWidget(self.textArea)
 
         window = QWidget()
@@ -207,6 +211,20 @@ class Server(QMainWindow):
         self.setWindowIcon(QIcon('resources/favicon.png'))
 
     def createComponents(self):
+        self.bot_status = 0
+        self.start_bot_button = QPushButton('Start bot', self)
+        self.start_bot_button.clicked.connect(self.createThread)
+        self.disable_bot_button = QPushButton('Disable bot', self)
+        self.disable_bot_button.clicked.connect(self.disableBot)
+
+        botGroupLayout = QHBoxLayout()
+        botGroupLayout.addWidget(self.start_bot_button)
+        botGroupLayout.addWidget(self.disable_bot_button)
+
+        self.botGroup = QGroupBox('Bot')
+        self.botGroup.setLayout(botGroupLayout)
+
+
         self.serverIP = QLabel('IP: ', self)
         self.serverPORT = QLabel('Port: ', self)
 
@@ -237,10 +255,30 @@ class Server(QMainWindow):
     def refresh(self):
         self.update()
 
+    def createThread(self):
+        self.bot_status = 1
+        self.start_bot_button.setDisabled(True)
+        self.disable_bot_button.setDisabled(False)
+        threading.Thread(target=self.botOnOFF).start()
+
+    def disableBot(self):
+        self.bot_status = 0
+        self.disable_bot_button.setDisabled(True)
+        self.start_bot_button.setDisabled(False)
+        threading.Thread(target=self.botOnOFF).start()
+
+    def botOnOFF(self):
+        if self.bot_status is 1:
+            bot.addBotToGame()
+            bot.run = True
+        elif self.bot_status is 0:
+            bot.run = False
+
 if __name__ == '__main__':
     app = QApplication([])
     server = Server()
     server.show()
+    bot = Bot()
     sys.exit(app.exec_())
 
    

@@ -35,6 +35,15 @@
 * Dynamic leaderboard in the top right corner.
 * Game logic is handled by the server.
 * Client side is used only for rendering game components.
+
+###### Update 1.1.0
+* Added bot that can be launched from server.
+* Functions:
+  - Detecting the nearest food from current position.
+  - Gathering food when radius is less than 10.
+  - Looking for the nearest player when radius is more than 10.
+  - If the player is close enough, it performs attack.
+  - After collision with player, goes back to collecting food.
   
 ## How To Use
 
