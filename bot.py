@@ -175,7 +175,19 @@ class Bot():
         distance_X = bot['x'] - x
         distance_Y = bot['y'] - y
 
-        if bot['x'] > x and distance_X > 4 + bot['radius']:
+        if bot['x'] > x and distance_X > 4 + bot['radius'] and bot['y'] > y:
+            print('upleft')
+            self.moveUpLeft()
+        elif bot['x'] < x and distance_X < -4 - bot['radius'] and bot['y'] > y:
+            print('upright')
+            self.moveUpRight()
+        elif bot['x'] > x and distance_X > 4 + bot['radius'] and bot['y'] < y:
+            print('downlleft')
+            self.moveDownLeft()
+        elif bot['x'] < x and distance_X < -4 - bot['radius'] and bot['y'] < y:
+            print('downright')
+            self.moveDownRight()
+        elif bot['x'] > x and distance_X > 4 + bot['radius']:
             self.moveLeft()
         elif bot['x'] < x and distance_X < -4 - bot['radius']:
             self.moveRight()
@@ -197,6 +209,19 @@ class Bot():
         elif self.direction == 3:
             bot['x'] = bot['x'] + bot['velocity']
 
+        elif self.direction == 4:
+            bot['y'] = bot['y'] - bot['velocity']
+            bot['x'] = bot['x'] - bot['velocity']
+        elif self.direction == 5:
+            bot['y'] = bot['y'] - bot['velocity']
+            bot['x'] = bot['x'] + bot['velocity']
+        elif self.direction == 6:
+            bot['y'] = bot['y'] + bot['velocity']
+            bot['x'] = bot['x'] - bot['velocity']
+        elif self.direction == 7:
+            bot['y'] = bot['y'] + bot['velocity']
+            bot['x'] = bot['x'] + bot['velocity']    
+
     def moveUp(self):
         self.direction = 0
     
@@ -208,6 +233,19 @@ class Bot():
 
     def moveRight(self):
         self.direction = 3
+
+    # add
+    def moveUpLeft(self):
+        self.direction = 4
+    
+    def moveUpRight(self):
+        self.direction = 5
+    
+    def moveDownLeft(self):
+        self.direction = 6
+    
+    def moveDownRight(self):
+        self.direction = 7
 
     def disableBot(self):
         quit()
