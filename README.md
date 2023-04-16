@@ -5,10 +5,12 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <img src="resources/favicon.png" alt="Logo" width="80" height="71.6">
+  <img src="resources/logo.png" alt="Logo" width="80" height="80">
   <h3 align="center">Agar-Io</h3>
   <p align="center">
-    An awesome dependency information gatherer!
+    Agar.io clone implemented using Pygame that
+    <br />lets players control a cell and grow it by eating
+    <br />food and other players.
     <br /><br />
   </p>
 </div>
