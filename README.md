@@ -1,93 +1,127 @@
-<h1 align="center">
-  Agar.io
-  <br>
-</h1>
+<a name="readme-top"></a>
 
-<h4 align="center">Popular game clone developed using pygame.</h4>
 
-<p align="center">
-<img alt="Project version" src="https://img.shields.io/badge/version-1.1.0-orange">
-<a href="https://github.com/kamillobinski/Agar.io/issues"> <img alt="GitHub issues" src="https://img.shields.io/github/issues/kamillobinski/Agar.io"></a>
-<a href="https://github.com/kamillobinski/Agar.io/stargazers"> <img alt="GitHub stars" src="https://img.shields.io/github/stars/kamillobinski/Agar.io"></a>
-<a href="https://github.com/kamillobinski/Agar.io/blob/master/LICENSE"> <img alt="GitHub license" src="https://img.shields.io/github/license/kamillobinski/Agar.io"></a>
-</p>
 
-<p align="center">
-  <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
-  <a href="#download">Download</a> •
-  <a href="#dependencies">Dependencies</a> •
-  <a href="#license">License</a>
-</p>
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <img src="resources/favicon.png" alt="Logo" width="80" height="71.6">
+  <h3 align="center">Agar-Io</h3>
+  <p align="center">
+    An awesome dependency information gatherer!
+    <br /><br />
+  </p>
+</div>
 
-![screenshot](https://github.com/kamillobinski/Agar.io/blob/master/readme-files/agar.gif?raw=true)
 
-## Key Features
 
-* Control your cell using WASD or arrow keys.
-* Each cell displays username.
-* Eat food and other players in order to grow your character.
-  - Players who haven't eaten yet cannot be eaten by others.
-* Food respawns:
-  - if it's number is less than 10.
-  - when new player enters the game.
-* Cell's mass is the number of food particles eaten.
-* Dynamic leaderboard in the top right corner.
-* Game logic is handled by the server.
-* Client side is used only for rendering game components.
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
-###### Update 1.1.0
-* Added bot that can be launched from server.
-* Functions:
-  - Detecting the nearest food from current position.
-  - Gathering food when radius is less than 10.
-  - Looking for the nearest player when radius is more than 10.
-  - If the player is close enough, it performs attack.
-  - After collision with player, goes back to collecting food.
-  
-## How To Use
 
-To clone and run this application, you'll need [Git](https://git-scm.com) and [Python](https://www.python.org/downloads/). From your command line:
 
-```bash
-# Clone this repository
-$ git clone https://github.com/kamillobinski/Agar.io
-```
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
-After succesfull cloning, change both server and client IP address:
+This repository contains a Python pygame app that is a clone of the popular game agar.io. The game was originally developed as a side project during the BSc degree studies in IT engineering. The game features include controlling a cell using WASD or arrow keys, displaying a username for each cell, eating food and other players to grow your character, and a dynamic leaderboard in the top right corner.
 
-```python
-self.host = '192.168.56.1'
-self.port = 55550
-```
+The game logic is handled by the server, while the client side is used only for rendering game components. In addition, the repository includes a bot that can be launched from the server to detect and attack other players. The bot features include detecting the nearest food from the current position, gathering food when the radius is less than 10, looking for the nearest player when the radius is more than 10, performing an attack if the player is close enough, and going back to collecting food after a collision with another player.
 
-Lastly remember to launch server before client.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Download
 
-Not available. Please check the intructions [above](#how-to-use).
 
-## Dependencies
+### Built With
 
-- Pygame ```pip install pygame```
-- PyQt5 ```pip install PyQt5```
+![Python][Python-url]
+![Pygame][Pygame-url]
 
-## Support
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Show some :heart: and star the repo to support the project.
 
-## You may also like...
 
-- [Instagram](https://github.com/kamillobinski/instagram) - Popular social networking website clone.
-- [Weather app](https://github.com/kamillobinski/Weather-App) - Desktop app with local weather
+<!-- GETTING STARTED -->
+## Getting Started
 
+To get a local copy up and running follow these simple steps.
+
+### Installation
+
+1. Clone the repo
+   ```sh
+   git clone git@github.com:kamillobinski/agar-io.git
+   ```
+
+2. Install the required packages
+   ```sh
+   pip install pygame PyQt5
+   ```
+
+3. Set your IP address in `server.py` and `client.py` files
+   ```python
+   self.host = '192.168.0.1'
+   ```
+
+4. Run server and client
+   ```sh
+   python server.py
+   python client.py
+   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- USAGE -->
+## Usage
+
+Here is a preview of the game:
+
+![preview](./readme-files/agar.gif)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- LICENSE -->
 ## License
 
-Apache 2.0
+Distributed under the Apache 2.0 License. See `LICENSE.txt` for more information.
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-> Gmail [Kamil Łobiński](mailto:kamilobinski@gmail.com) &nbsp;&middot;&nbsp;
-> GitHub [@kamillobinski](https://github.com/kamillobinski) &nbsp;&middot;&nbsp;
-> LinkedIn [Kamil Łobiński](https://www.linkedin.com/in/kamillobinski/?locale=en_US)
 
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+I would like to thank the developers of pygame, as well as the creators of agar.io for inspiring this project. I would also like to express my gratitude to my professors and colleagues during my BSc degree studies in IT engineering for their support and feedback during the development of this game.
+
+* [Agar.io](https://agar.io/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[Python-url]: https://img.shields.io/badge/Python-0769AD?style=for-the-badge&logo=python&logoColor=white
+[Pygame-url]: https://img.shields.io/badge/Pygame-%23F7DF1E.svg?style=for-the-badge&logo=pygame&logoColor=black
